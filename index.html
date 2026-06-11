@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机数-分贝值采样系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .result-box {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+        button {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .final-result {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            color: #FFD700;
+            margin-top: 20px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 随机数-分贝值采样系统</h1>
+        
+        <div id="steps" class="result-box"></div>
+        
+        <button onclick="startSampling()">开始采样</button>
+        
+        <div id="finalResult" class="result-box" style="display: none;">
+            <h3>📈 最终结果</h3>
+            <div id="averageResult" class="final-result"></div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟获取分贝值
+        // 实际应用中，这里应该连接麦克风获取真实分贝值
+        function getDecibelLevel() {
+            // 模拟真实分贝值：30-90分贝（正常环境噪声范围）
+            return 30 + Math.random() * 60;
+        }
+        
+        // 生成1-16的随机整数
+        function getRandomNumber() {
+            return Math.floor(Math.random() * 16) + 1;
+        }
+        
+        // 执行一次采样
+        function takeSample() {
+            const randomNum = getRandomNumber();
+            const decibel = getDecibelLevel();
+            const combinedValue = parseFloat(`${randomNum}.${Math.floor(decibel)}`);
+            
+            return {
+                randomNum,
+                decibel,
+                combinedValue,
+                displayText: `${randomNum}.${Math.floor(decibel)} = ${combinedValue.toFixed(2)}`
+            };
+        }
+        
+        // 执行完整采样流程
+        function startSampling() {
+            const stepsDiv = document.getElementById('steps');
+            const finalResultDiv = document.getElementById('finalResult');
+            
+            stepsDiv.innerHTML = '<h3>📊 采样过程</h3>';
+            let samples = [];
+            let sum = 0;
+            
+            // 采样5次
+            for (let i = 0; i < 5; i++) {
+                const sample = takeSample();
+                samples.push(sample);
+                sum += sample.combinedValue;
+                
+                // 显示每一步
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'step';
+                stepDiv.innerHTML = `
+                    <strong>第 ${i+1} 次采样：</strong><br>
+                    1. 随机数: ${sample.randomNum}<br>
+                    2. 分贝值: ${sample.decibel.toFixed(1)} dB<br>
+                    3. 合并值: ${sample.displayText}
+                `;
+                stepsDiv.appendChild(stepDiv);
+            }
+            
+            // 计算平均值
+            const average = sum / 5;
+            
+            // 显示最终结果
+            finalResultDiv.style.display = 'block';
+            document.getElementById('averageResult').innerHTML = `
+                5次合并值总和: ${sum.toFixed(2)}<br>
+                平均值: ${average.toFixed(2)}
+            `;
+        }
+        
+        // 页面加载时自动运行一次
+        window.onload = startSampling;
+    </script>
+</body>
+</html>
